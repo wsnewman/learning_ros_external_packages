@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package>
+	<name>sticky_fingers</name>
+	<version>1.0.0</version>
+	<description>Sticky gripper for holding objects.</description>
+  
+	<!-- One maintainer tag required, multiple allowed, one person per tag -->
+	<maintainer email="tes77@case.edu">Tom</maintainer>
+
+	<!-- One license tag required, multiple allowed, one license per tag -->
+	<!-- Commonly used license strings: -->
+	<!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+	<license>None</license>
+
+	<!-- Url tags are optional, but mutiple are allowed, one per tag -->
+	<!-- Optional attribute type can be: website, bugtracker, or repository -->
+	<url type="repository">https://github.com/TomShkurti/StickyFingers</url>
+
+
+	<!-- Author tags are optional, mutiple are allowed, one per tag -->
+	<!-- Authors do not have to be maintianers, but could be -->
+	<author email="tes77@case.edu">Tom Shkurti</author>
+
+	<!-- The *_depend tags are used to specify dependencies -->
+	<!-- Dependencies can be catkin packages or system dependencies -->
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<build_depend>message_generation</build_depend>
+	<build_depend>roscpp</build_depend>
+	<build_depend>gazebo_ros</build_depend>
+	<build_depend>gazebo_ros_control</build_depend>
+   
+	<run_depend>message_runtime</run_depend>
+	<run_depend>roscpp</run_depend>
+	<run_depend>gazebo_ros</run_depend>
+	<run_depend>gazebo_ros_control</run_depend>
+	
+	<!-- The export tag contains other, unspecified, tags -->
+	<export>
+		<!--This creates a plugin file called libsticky_fingers.so -->
+		<gazebo_ros plugin_path="${prefix}/lib" gazebo_media_path="${prefix}"/>
+	</export>
+</package>

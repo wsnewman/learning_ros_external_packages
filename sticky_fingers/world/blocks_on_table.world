@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+	<world name="1grip_1block">
+		<include>
+			<uri>model://ground_plane</uri>
+		</include>
+
+		<include>
+			<uri>model://sun</uri>
+		</include>
+
+		<model name="finger">
+			<pose>0 1.0 4.0 0 0 0</pose>
+			<link name="finger_body">
+				<collision name="fbody_collision">
+					<geometry>
+						<box>
+							<size>0.5 0.5 1</size>
+						</box>
+					</geometry>
+				</collision>
+				
+				<gravity>0</gravity>
+				
+				<visual name="fbody_visual">
+					<geometry>
+						<box>
+							<size>0.5 0.5 1.2</size>
+						</box>
+					</geometry>
+					<transparency>0.0</transparency>
+				</visual>
+			</link>
+			
+			<!--This is the sticky part.-->
+			<link name="ftip">
+				<pose>0 0 -0.75 0 0 0</pose>
+				<gravity>0</gravity>
+
+				<visual name="ftip_visual">
+					<geometry>
+						<box>
+							<size>0.4 0.4 0.5</size>
+						</box>
+					</geometry>
+					<transparency>0.5</transparency>
+					<material>
+						<ambient>1.0 0.0 0.0 0.0</ambient>
+					</material>
+				</visual>
+				
+				<!--The collision object used within the <collision> element of a contact sensor MUST be of the form <link name>_collision.
+				I sincerely wish that I was making this up:
+				http://answers.gazebosim.org/question/6929/contact-sensor-error-when-using-gazebo-223/ -->
+				<collision name="ftip_collision">
+					<geometry>
+						<box>
+							<size>0.4 0.4 0.5</size>
+						</box>
+					</geometry>
+				</collision>
+				
+				<!--The actual sticky_fingers contact.-->
+				<sensor name='tip_contact' type='contact'>
+					<plugin name="sticky_finger" filename="libsticky_fingers.so">
+						<capacity>25</capacity>
+					</plugin>
+          				<contact>
+            					<collision>ftip_collision</collision>
+          				</contact>
+        			</sensor>
+			</link>
+			
+			<joint name="fixed1" type="prismatic">
+ 				<parent>finger_body</parent>
+ 				<child>ftip</child>
+ 				<pose>0 0 0 0 0 0</pose>
+ 				<axis>
+ 					<xyz>0 0 1</xyz>
+ 					<limit>
+ 						<upper>0</upper>
+ 						<lower>0</lower>
+ 					</limit>
+				</axis>
+  			</joint>
+		</model>
+		
+		<!-- Two light blocks, connected by a joint-->
+		<model name="blocks_light">
+			<pose> 0 1.0 2.125 0 0 0</pose>
+			<link name="b1_body">
+				<collision name="b1_collision">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+				</collision>
+				<visual name="b1_visual">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+					<material>
+						<ambient>0.0 1.0 0.0 0.0</ambient>
+					</material>
+				</visual>
+			</link>
+			
+			<link name="b2_body">
+			
+				<pose> 0.5 0 0 0 0 0</pose>
+			
+				<collision name="b2_collision">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+				</collision>
+				<visual name="b2_visual">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+					<material>
+						<ambient>0.0 0.0 1.0 0.0</ambient>
+					</material>
+				</visual>
+			</link>
+			
+			<joint name="fixed2" type="prismatic">
+ 				<parent>b2_body</parent>
+ 				<child>b1_body</child>
+ 				<pose>0 0 0 0 0 0</pose>
+ 				<axis>
+ 					<xyz>0 0 1</xyz>
+ 					<limit>
+ 						<upper>0.1</upper>
+ 						<lower>-0.1</lower>
+ 					</limit>
+				</axis>
+  			</joint>
+		</model>
+		
+		<!--A heavy black block, not connected to anything.-->
+		<model name="block_heavy">
+			<pose> -0.5 1.0 2.125 0 0 0</pose>
+			<link name="bh_body">
+				<collision name="bh_collision">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+				</collision>
+				<visual name="bh_visual">
+					<geometry>
+						<box>
+							<size>0.25 0.25 0.25</size>
+						</box>
+					</geometry>
+					<material>
+						<ambient>0.0 0.0 0.0 0.0</ambient>
+					</material>
+				</visual>
+				<inertial>
+        			<mass>50</mass>
+        		</inertial>
+			</link>
+		</model>
+		
+		<!--A static table for the blocks to sit on.-->
+		<model name="table">
+			<pose>0 1.0 0.0 0 0 0</pose>
+			<include>
+          			<static>true</static>
+          			<uri>model://table</uri>
+        		</include>
+        	</model>
+	</world>
+</sdf>

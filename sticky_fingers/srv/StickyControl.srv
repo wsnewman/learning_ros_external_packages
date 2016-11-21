@@ -1,0 +1,7 @@
+#Yeah, so it turns out that ROS is just ABOLUTELY HORRIBLE at giving us pre-defined services to work with.
+#There really is NOT a standard boolean->boolean service available to use.
+
+bool sticky_status
+---
+bool new_status
+#Not sure if this last one is even needed...
