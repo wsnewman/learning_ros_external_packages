@@ -41,3 +41,6 @@ add_executable(finger_control_dummy_node src/finger_control_dummy_node.cpp)
 add_library(sticky_fingers src/sticky_fingers.cpp)
 target_link_libraries(sticky_fingers ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 target_link_libraries(finger_control_dummy_node ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+add_dependencies(finger_control_dummy_node sticky_fingers_generate_messages_cpp)
+add_dependencies(sticky_fingers sticky_fingers_generate_messages_cpp)
