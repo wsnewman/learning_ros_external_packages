@@ -24,8 +24,6 @@
 	<!-- The *_depend tags are used to specify dependencies -->
 	<!-- Dependencies can be catkin packages or system dependencies -->
 	<buildtool_depend>catkin</buildtool_depend>
-
-	<build_depend>message_generation</build_depend>
 	<build_depend>roscpp</build_depend>
 	<build_depend>gazebo_ros</build_depend>
 	<build_depend>gazebo_ros_control</build_depend>

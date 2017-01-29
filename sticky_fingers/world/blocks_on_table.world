@@ -59,16 +59,6 @@
 						</box>
 					</geometry>
 				</collision>
-				
-				<!--The actual sticky_fingers contact.-->
-				<sensor name='tip_contact' type='contact'>
-					<plugin name="sticky_finger" filename="libsticky_fingers.so">
-						<capacity>25</capacity>
-					</plugin>
-          				<contact>
-            					<collision>ftip_collision</collision>
-          				</contact>
-        			</sensor>
 			</link>
 			
 			<joint name="fixed1" type="prismatic">
@@ -83,6 +73,11 @@
  					</limit>
 				</axis>
   			</joint>
+  			
+  			<plugin name="sticky_finger" filename="libsticky_fingers.so">
+				<capacity>25</capacity>
+				<link>finger::ftip</link>
+			</plugin>
 		</model>
 		
 		<!-- Two light blocks, connected by a joint-->

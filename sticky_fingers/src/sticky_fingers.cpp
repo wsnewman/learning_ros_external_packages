@@ -3,8 +3,7 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 
-//Auto-generated ROS service header
-#include <sticky_fingers/StickyControl.h>
+#include <std_srvs/SetBool.h>
 
 namespace gazebo{
 	class StickyFingers : public gazebo::ModelPlugin{
@@ -85,10 +84,10 @@ namespace gazebo{
 			ros::NodeHandle nh;
 			ros::ServiceServer service;
 			bool ControlCallback(
-				sticky_fingers::StickyControlRequest& request,
-				sticky_fingers::StickyControlResponse& response
+				std_srvs::SetBoolRequest& request,
+				std_srvs::SetBoolResponse& response
 			){
-				if(this->sticky && !request.sticky_status){//We are sticky and should stop being such.
+				if(this->sticky && !request.data){//We are sticky and should stop being such.
 					this->sticky = false;//Stop being sticky.
 					if(this->held_object != NULL){
 						this->held_object->SetCollideMode("all");
@@ -96,21 +95,22 @@ namespace gazebo{
 					this->finger_link->SetCollideMode("all");//Resume collisionality
 					this->fixedJoint->Detach();
 					this->held_object = NULL;//Drop our held object (if any)
-					response.new_status = false;//Report what we just did.
+					response.success = false;//Report what we just did.
 					return true;
 				}
-				else if(!this->sticky && request.sticky_status){//We are not sticky and should be sticky...
+				else if(!this->sticky && request.data){//We are not sticky and should be sticky...
 					this->sticky = true;
-					response.new_status = true;
+					response.success = true;
 					return true;
 				}
 				//Otherwise, we really don't have anything in particular to DO...
-				response.new_status = sticky;
+				response.success = sticky;
 				return true;
 			}
 
 		public:
 			void Load(physics::ModelPtr mod, sdf::ElementPtr sdf){
+				printf("Loaded SF.");
 				this->sticky = false;
 				this->held_object = NULL;
 				
