@@ -1,3 +1,5 @@
+#include <gazebo/gazebo_config.h>
+
 #include <gazebo/sensors/sensors.hh>
 #include <gazebo_ros_control/gazebo_ros_control_plugin.h>
 #include <ros/ros.h>
@@ -5,9 +7,11 @@
 
 #include <std_srvs/SetBool.h>
 
-#include <gazebo/gazebo_config.h>
-
-#define NEW_GAZEBO_INTERFACE (GAZEBO_MAJOR_VERSION >= 10)
+#if (GAZEBO_MAJOR_VERSION > 10)
+#define NEW_GAZEBO_INTERFACE 0
+#else
+#define NEW_GAZEBO_INTERFACE 1
+#endif
 
 #define OLD_GAZEBO_UPDATE ((GAZEBO_MAJOR_VERSION == 9) || (GAZEBO_MINOR_VERSION >= 19))
 
