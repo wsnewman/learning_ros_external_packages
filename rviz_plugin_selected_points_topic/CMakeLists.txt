@@ -2,17 +2,39 @@
 ## This CMakeLists.txt file for rviz_plugin_tutorials builds both the TeleopPanel tutorial and the ImuDisplay tutorial.
 ##
 ## First start with some standard catkin stuff.
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(rviz_plugin_selected_points_topic)
 find_package(catkin REQUIRED COMPONENTS rviz)
 catkin_package()
 include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
 
+
+function(dump_cmake_variables)
+    get_cmake_property(_variableNames VARIABLES)
+    list (SORT _variableNames)
+    foreach (_variableName ${_variableNames})
+        if (ARGV0)
+            unset(MATCHED)
+            string(REGEX MATCH ${ARGV0} MATCHED ${_variableName})
+            if (NOT MATCHED)
+                continue()
+            endif()
+        endif()
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endforeach()
+endfunction()
+
 ## This plugin includes Qt widgets, so we must include Qt like so:
 # find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui UiTools Widgets REQUIRED)
 # include(${QT_USE_FILE})
+include_directories(
+  ${Qt5Core_INCLUDE_DIRS}
+  ${Qt5Gui_INCLUDE_DIRS}
+  ${Qt5UiTools_INCLUDE_DIRS}
+  ${Qt5Widgets_INCLUDE_DIRS}
+)
 
 ## I prefer the Qt signals and slots to avoid defining "emit", "slots",
 ## etc because they can conflict with boost signals, so define QT_NO_KEYWORDS here.
@@ -30,6 +52,7 @@ set(SOURCE_FILES
   src/selected_points_topic.cpp
   ${MOC_FILES}
 )
+dump_cmake_variables()
 
 ## An rviz plugin is just a shared library, so here we declare the
 ## library to be called ``${PROJECT_NAME}`` (which is
@@ -47,7 +70,7 @@ add_library(${PROJECT_NAME} ${SOURCE_FILES})
 ## library and names the actual file something like
 ## "librviz_plugin_tutorials.so", or whatever is appropriate for your
 ## particular OS.
-target_link_libraries(${PROJECT_NAME} ${Qt5_Core_LIBRARIES} ${Qt5_Gui_LIBRARIES} ${Qt5_UiTools_LIBRARIES} ${Qt5_Widgets_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Qt5_Core_LIBRARIES} ${Qt5_Gui_LIBRARIES} ${Qt5_UiTools_LIBRARIES} ${Qt5_Widgets_LIBRARIES} ${catkin_LIBRARIES} ${ROS_LIBRARIES})
 ## END_TUTORIAL
 
 
@@ -63,5 +86,4 @@ install(TARGETS
 install(FILES 
   plugin_description.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
 
