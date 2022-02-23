@@ -10,7 +10,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
 
 string(REPLACE "/" ";" ROS_VER_RAW ${CMAKE_PREFIX_PATH_AS_IS})
-list(GET ${ROS_VER_RAW} -1 ROS_VER)
+list(GET ROS_VER_RAW -1 ROS_VER)
 
 if(${ROS_VER} MATCHES "noetic")
 
