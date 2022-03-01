@@ -1,9 +1,27 @@
+#include <gazebo/gazebo_config.h>
+
 #include <gazebo/sensors/sensors.hh>
 #include <gazebo_ros_control/gazebo_ros_control_plugin.h>
 #include <ros/ros.h>
 #include <tf/tf.h>
 
 #include <std_srvs/SetBool.h>
+
+#if ((GAZEBO_MAJOR_VERSION > 10) || ((GAZEBO_MAJOR_VERSION == 9) && (GAZEBO_MINOR_VERSION >=19)))
+#define OLD_GAZEBO_INTERFACE 0
+#else
+#define OLD_GAZEBO_INTERFACE 1
+#endif
+
+#if ((GAZEBO_MAJOR_VERSION == 9) && (GAZEBO_MINOR_VERSION >= 19))
+#define OLD_GAZEBO_UPDATE 1
+#else
+#define OLD_GAZEBO_UPDATE 0
+#endif
+
+#if OLD_GAZEBO_UPDATE
+#include "ignition/math.hh"
+#endif
 
 namespace gazebo{
 	class StickyFingers : public gazebo::ModelPlugin{
@@ -41,7 +59,11 @@ namespace gazebo{
 						if(strcmp(msg->contact(i).collision1().c_str(), this->finger_name.c_str())){
 							candidate =
 								boost::dynamic_pointer_cast<physics::Collision>(
+#if OLD_GAZEBO_INTERFACE
 									this->finger_world->GetEntity(msg->contact(i).collision1())
+#else
+									this->finger_world->EntityByName(msg->contact(i).collision1())
+#endif
 								)
 							->GetLink();
 
@@ -49,13 +71,21 @@ namespace gazebo{
 						if(strcmp(msg->contact(i).collision2().c_str(), this->finger_name.c_str())){
 							candidate =
 								boost::dynamic_pointer_cast<physics::Collision>(
+#if OLD_GAZEBO_INTERFACE
 									this->finger_world->GetEntity(msg->contact(i).collision1())
+#else
+									this->finger_world->EntityByName(msg->contact(i).collision1())
+#endif
 								)
 							->GetLink();
 						}
 						if(candidate != NULL){
 							if(!candidate->IsStatic()){
+#if OLD_GAZEBO_INTERFACE
 								if(candidate->GetInertial()->GetMass() <= this->max_mass){//Ignore heavy objects
+#else
+								if(candidate->GetInertial()->Mass() <= this->max_mass){//Ignore heavy objects
+#endif
 									ROS_INFO("Finger grabbing link %s.", candidate->GetName().c_str());
 
 									this->held_object = candidate;
@@ -64,12 +94,26 @@ namespace gazebo{
 									this->held_object->SetCollideMode("ghost");
 									
 									//Attach the joint
+#if OLD_GAZEBO_INTERFACE
 									this->fixedJoint->Load(this->finger_link, held_object, math::Pose());
+#else
+									this->fixedJoint->Load(this->finger_link, held_object, ignition::math::Pose3d());
+#endif
 									//The joint limits have to be set after attachment:
 									// http://answers.gazebosim.org/question/2824/error-when-setting-dynamically-created-joints-axis-in-gazebo-180/
+#if OLD_GAZEBO_INTERFACE
 									this->fixedJoint->SetAxis(0, gazebo::math::Vector3(0.0, 0.0, 1.0));
 									this->fixedJoint->SetLowStop(0, gazebo::math::Angle(0.0));
 									this->fixedJoint->SetHighStop(0, gazebo::math::Angle(0.0));
+#else
+#if OLD_GAZEBO_UPDATE
+									this->fixedJoint->SetAxis(0, ignition::math::Vector3d(0.0, 0.0, 1.0));
+#else
+									this->fixedJoint->SetAxis(0, ignition::math::Vector3(0.0, 0.0, 1.0));
+#endif
+									this->fixedJoint->SetParam("lo_stop", 0, ignition::math::Angle(0.0));
+									this->fixedJoint->SetParam("hi_stop", 0, ignition::math::Angle(0.0));
+#endif
 									this->fixedJoint->Init();
 
 									break;
@@ -120,12 +164,20 @@ namespace gazebo{
 				this->finger_model = mod;
 				this->finger_world = finger_model->GetWorld();
 				this->finger_link = boost::dynamic_pointer_cast<physics::Link>(
+#if OLD_GAZEBO_INTERFACE
 					this->finger_world->GetEntity(this->finger_name)
+#else
+					this->finger_world->EntityByName(this->finger_name)
+#endif
 				);
 				
 				//Initialize the joint.
 				//We use a prismatic joint that will have limits of (0,0) because fixed joints are not natively supported in this version of Gazebo
+#if OLD_GAZEBO_INTERFACE
 				this->fixedJoint = this->finger_world->GetPhysicsEngine()->CreateJoint("prismatic", this->finger_model);
+#else
+				this->fixedJoint = this->finger_world->Physics()->CreateJoint("prismatic", this->finger_model);
+#endif
 				this->fixedJoint->SetName(this->finger_model->GetName() + "__sticking_joint__");
 				
 				//Pull out all possible collision objects from the link
@@ -141,10 +193,18 @@ namespace gazebo{
 				
 				//Create a listener on those contacts
 				this->contact_node = transport::NodePtr(new transport::Node());
+#if OLD_GAZEBO_INTERFACE				
 				this->contact_node->Init(this->finger_world->GetName());
+#else
+				this->contact_node->Init(this->finger_world->Name());
+#endif
 				if (!collisions.empty()){
 					// Create a filter to receive collision information
+#if OLD_GAZEBO_INTERFACE
 					physics::ContactManager * mgr = this->finger_world->GetPhysicsEngine()->GetContactManager();
+#else
+					physics::ContactManager * mgr = this->finger_world->Physics()->GetContactManager();
+#endif
 					std::string topic = mgr->CreateFilter(finger_name, collisions);
 					if (!this->contact_sub){
 						this->contact_sub = this->contact_node->Subscribe(topic, &StickyFingers::ContactCB, this);
